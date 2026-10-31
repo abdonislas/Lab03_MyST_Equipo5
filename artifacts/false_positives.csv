@@ -1,0 +1,3 @@
+prueba,n_tests,alpha,FP_esperados
+Engle-Granger,30,0.05,1.5
+Johansen,57,0.05,2.85
