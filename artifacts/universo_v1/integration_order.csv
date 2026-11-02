@@ -1,0 +1,7 @@
+ticker,ADF_nivel_p,ADF_diff_p,KPSS_nivel_p,orden
+VZ,0.1884,0.0,0.01,I(1)
+T,0.0161,0.0,0.01,revisar
+BCE,0.9128,0.0,0.01,I(1)
+DIS,0.4468,0.0,0.01,I(1)
+AMX,0.3687,0.0,0.01,I(1)
+NFLX,0.5701,0.0,0.01,I(1)

@@ -1,0 +1,17 @@
+{
+  "grupo": "AMT+SBAC",
+  "vector": [
+    1.0,
+    -0.8631
+  ],
+  "pata_normalizacion": "AMT",
+  "etapa_caida": "PASA",
+  "rank_traza": 1,
+  "rank_maxeig": 1,
+  "ADF_spread_p": 0.012,
+  "vida_media": 41.3,
+  "bandera_roja": false,
+  "activo_no_I1": [],
+  "pasa_embudo": true,
+  "criterio": "manual: unico grupo que pasa sin bandera_roja y con mejor justificacion economica"
+}

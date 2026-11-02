@@ -1,58 +1,58 @@
-grupo,n,etapa_caida,coint_rank,ADF_spread_p,vida_media
-VZ+T,2,correlacion,,,
-VZ+BCE,2,correlacion,,,
-VZ+DIS,2,correlacion,,,
-VZ+AMX,2,correlacion,,,
-VZ+NFLX,2,correlacion,,,
-T+BCE,2,correlacion,,,
-T+DIS,2,correlacion,,,
-T+AMX,2,correlacion,,,
-T+NFLX,2,correlacion,,,
-BCE+DIS,2,correlacion,,,
-BCE+AMX,2,correlacion,,,
-BCE+NFLX,2,correlacion,,,
-DIS+AMX,2,correlacion,,,
-DIS+NFLX,2,correlacion,,,
-AMX+NFLX,2,correlacion,,,
-VZ+T+BCE,3,correlacion,,,
-VZ+T+DIS,3,correlacion,,,
-VZ+T+AMX,3,correlacion,,,
-VZ+T+NFLX,3,correlacion,,,
-VZ+BCE+DIS,3,correlacion,,,
-VZ+BCE+AMX,3,correlacion,,,
-VZ+BCE+NFLX,3,correlacion,,,
-VZ+DIS+AMX,3,correlacion,,,
-VZ+DIS+NFLX,3,correlacion,,,
-VZ+AMX+NFLX,3,correlacion,,,
-T+BCE+DIS,3,correlacion,,,
-T+BCE+AMX,3,correlacion,,,
-T+BCE+NFLX,3,correlacion,,,
-T+DIS+AMX,3,correlacion,,,
-T+DIS+NFLX,3,correlacion,,,
-T+AMX+NFLX,3,correlacion,,,
-BCE+DIS+AMX,3,correlacion,,,
-BCE+DIS+NFLX,3,correlacion,,,
-BCE+AMX+NFLX,3,correlacion,,,
-DIS+AMX+NFLX,3,correlacion,,,
-VZ+T+BCE+DIS,4,correlacion,,,
-VZ+T+BCE+AMX,4,correlacion,,,
-VZ+T+BCE+NFLX,4,correlacion,,,
-VZ+T+DIS+AMX,4,correlacion,,,
-VZ+T+DIS+NFLX,4,correlacion,,,
-VZ+T+AMX+NFLX,4,correlacion,,,
-VZ+BCE+DIS+AMX,4,correlacion,,,
-VZ+BCE+DIS+NFLX,4,correlacion,,,
-VZ+BCE+AMX+NFLX,4,correlacion,,,
-VZ+DIS+AMX+NFLX,4,correlacion,,,
-T+BCE+DIS+AMX,4,correlacion,,,
-T+BCE+DIS+NFLX,4,correlacion,,,
-T+BCE+AMX+NFLX,4,correlacion,,,
-T+DIS+AMX+NFLX,4,correlacion,,,
-BCE+DIS+AMX+NFLX,4,correlacion,,,
-VZ+T+BCE+DIS+AMX,5,correlacion,,,
-VZ+T+BCE+DIS+NFLX,5,correlacion,,,
-VZ+T+BCE+AMX+NFLX,5,correlacion,,,
-VZ+T+DIS+AMX+NFLX,5,correlacion,,,
-VZ+BCE+DIS+AMX+NFLX,5,correlacion,,,
-T+BCE+DIS+AMX+NFLX,5,correlacion,,,
-VZ+T+BCE+DIS+AMX+NFLX,6,correlacion,,,
+grupo,n,corr_min_par,rank_traza,rank_maxeig,bandera_roja,activo_no_I1,ADF_spread_p,vida_media,vector,pata_normalizacion,etapa_caida
+AMT+SBAC+T,3,0.1369,2,1,True,['T'],0.0041,33.3,"[1.0, -0.8585, -0.4294]",AMT,PASA
+AMT+SBAC,2,0.7532,1,1,False,[],0.012,41.3,"[1.0, -0.8631]",AMT,PASA
+VZ+T,2,0.6485,1,1,True,['T'],0.0158,48.9,"[0.0555, 1.0]",T,PASA
+AMT+SBAC+VZ+T,4,0.1369,1,0,True,['T'],0.0,23.4,"[1.0, -0.7131, -0.5189, -0.3515]",AMT,johansen
+AMT+CCI+SBAC+VZ+T,5,0.1369,0,0,True,['T'],0.0,21.9,"[1.0, 0.2324, -0.8948, -0.5134, -0.2984]",AMT,johansen
+AMT+SBAC+VZ+T+TMUS,5,0.1369,0,0,True,['T'],0.0,23.3,"[1.0, -0.7238, -0.5148, -0.3581, 0.0111]",AMT,johansen
+AMT+CCI+SBAC+VZ+TMUS,5,0.1747,0,0,False,[],0.0001,22.9,"[-0.8551, -0.6454, 1.0, 0.4091, 0.1519]",SBAC,johansen
+AMT+CCI+SBAC+VZ+T+TMUS,6,0.1369,0,0,True,['T'],0.0001,21.2,"[-0.9253, -0.5516, 1.0, 0.4393, 0.1713, 0.1226]",SBAC,johansen
+AMT+CCI+SBAC+VZ,4,0.1879,0,0,False,[],0.0003,25.8,"[-0.9785, -0.3805, 1.0, 0.5008]",SBAC,johansen
+AMT+CCI+VZ+T,4,0.1561,0,0,True,['T'],0.0003,34.9,"[-0.9965, 0.731, 0.9473, 1.0]",T,johansen
+AMT+CCI+SBAC+TMUS,4,0.1747,0,0,False,[],0.0004,28.5,"[-0.6362, -0.7578, 1.0, 0.1756]",SBAC,johansen
+AMT+SBAC+VZ,3,0.1879,1,0,False,[],0.0006,28.8,"[1.0, -0.7124, -0.5311]",AMT,johansen
+AMT+SBAC+VZ+TMUS,4,0.1747,0,0,False,[],0.0007,28.9,"[1.0, -0.7201, -0.5074, 0.0001]",AMT,johansen
+AMT+CCI+SBAC+T+TMUS,5,0.1369,0,0,True,['T'],0.0007,27.8,"[-0.6432, -0.7449, 1.0, 0.079, 0.1692]",SBAC,johansen
+CCI+SBAC+VZ+T+TMUS,5,0.1369,0,0,True,['T'],0.001,33.7,"[1.0, -0.6218, 0.1472, 0.4716, -0.2388]",CCI,johansen
+CCI+SBAC+T+TMUS,4,0.1369,0,0,True,['T'],0.0011,30.0,"[1.0, -0.5472, 0.2808, -0.2816]",CCI,johansen
+AMT+VZ+T+TMUS,4,0.1561,0,0,True,['T'],0.0012,37.6,"[-0.4822, 1.0, 0.8684, 0.131]",VZ,johansen
+AMT+CCI+VZ+T+TMUS,5,0.1561,0,0,True,['T'],0.0012,33.5,"[-0.9864, 1.0, 0.8634, 0.9716, -0.2273]",CCI,johansen
+AMT+VZ+T,3,0.1561,0,0,True,['T'],0.0017,39.1,"[-0.3089, 0.8584, 1.0]",T,johansen
+AMT+CCI+SBAC,3,0.7419,0,0,False,[],0.0022,33.7,"[-0.7441, -0.4531, 1.0]",SBAC,johansen
+AMT+VZ+TMUS,3,0.1747,0,0,False,[],0.0025,43.0,"[-0.5033, 1.0, 0.1824]",VZ,johansen
+AMT+CCI+SBAC+T,4,0.1369,0,0,True,['T'],0.0026,31.0,"[-0.7759, -0.4225, 1.0, 0.1743]",SBAC,johansen
+AMT+CCI+VZ+TMUS,4,0.1747,0,0,False,[],0.0026,42.4,"[-0.46, -0.1062, 1.0, 0.2233]",VZ,johansen
+CCI+SBAC+VZ,3,0.1879,0,0,False,[],0.0028,47.1,"[1.0, -0.9095, 0.5662]",CCI,johansen
+CCI+SBAC+VZ+T,4,0.1369,0,0,True,['T'],0.0028,42.4,"[0.7312, -0.6699, 0.3459, 1.0]",T,johansen
+CCI+SBAC+VZ+TMUS,4,0.1879,0,0,False,[],0.0029,31.4,"[1.0, -0.5879, 0.1052, -0.2513]",CCI,johansen
+SBAC+VZ+T+TMUS,4,0.1369,0,0,True,['T'],0.003,43.1,"[-0.2576, 0.6949, 1.0, 0.0592]",T,johansen
+CCI+SBAC+TMUS,3,0.1939,0,0,False,[],0.0031,29.8,"[1.0, -0.5456, -0.2681]",CCI,johansen
+AMT+CCI+VZ,3,0.2288,0,0,False,[],0.0034,44.7,"[-0.6125, 0.321, 1.0]",VZ,johansen
+AMT+SBAC+T+TMUS,4,0.1369,0,0,True,['T'],0.0038,33.2,"[1.0, -0.9181, -0.4077, 0.0647]",AMT,johansen
+CCI+SBAC+T,3,0.1369,0,0,True,['T'],0.0051,44.3,"[0.646, -0.5225, 1.0]",T,johansen
+SBAC+VZ+T,3,0.1369,0,0,True,['T'],0.0059,43.5,"[-0.1477, 0.5012, 1.0]",T,johansen
+AMT+CCI+T+TMUS,4,0.1561,0,0,True,['T'],0.0059,34.6,"[-0.512, 1.0, 0.7866, -0.4127]",CCI,johansen
+AMT+VZ,2,0.2518,0,0,False,[],0.008,49.2,"[-0.3222, 1.0]",VZ,johansen
+CCI+VZ+TMUS,3,0.1939,0,0,False,[],0.0088,41.9,"[-0.9146, 1.0, 0.5117]",VZ,johansen
+CCI+VZ+T,3,0.1816,0,0,True,['T'],0.0095,45.0,"[-0.128, 0.349, 1.0]",T,johansen
+AMT+CCI+T,3,0.1561,0,0,True,['T'],0.0098,43.5,"[-0.3642, 0.366, 1.0]",T,johansen
+VZ+T+TMUS,3,0.3339,0,0,True,['T'],0.01,44.2,"[0.378, 1.0, -0.1294]",T,johansen
+CCI+VZ+T+TMUS,4,0.1816,0,0,True,['T'],0.0108,44.2,"[0.0586, 0.3278, 1.0, -0.167]",T,johansen
+AMT+SBAC+TMUS,3,0.1747,0,0,False,[],0.0116,40.9,"[1.0, -0.8973, 0.0328]",AMT,johansen
+SBAC+VZ+TMUS,3,0.1879,0,0,False,[],0.0125,53.7,"[-0.4498, 1.0, 0.2159]",VZ,johansen
+SBAC+VZ,2,0.1879,0,0,False,[],0.0128,58.8,"[-0.2557, 1.0]",VZ,johansen
+CCI+SBAC,2,0.7419,0,0,False,[],0.0134,43.7,"[1.0, -0.7653]",CCI,johansen
+AMT+CCI+TMUS,3,0.1747,0,0,False,[],0.0143,40.9,"[-0.3575, 1.0, -0.5138]",CCI,johansen
+SBAC+T,2,0.1369,0,0,True,['T'],0.0145,47.4,"[-0.0214, 1.0]",T,johansen
+AMT+T,2,0.1561,0,0,True,['T'],0.0146,47.1,"[-0.0265, 1.0]",T,johansen
+T+TMUS,2,0.3339,0,0,True,['T'],0.0153,46.9,"[1.0, -0.0341]",T,johansen
+CCI+T,2,0.1816,0,0,True,['T'],0.0154,47.6,"[-0.0246, 1.0]",T,johansen
+SBAC+T+TMUS,3,0.1369,0,0,True,['T'],0.0169,46.9,"[0.036, 1.0, -0.07]",T,johansen
+AMT+T+TMUS,3,0.1561,0,0,True,['T'],0.017,47.3,"[0.0504, 1.0, -0.0791]",T,johansen
+CCI+T+TMUS,3,0.1816,0,0,True,['T'],0.019,43.4,"[0.3964, 1.0, -0.3823]",T,johansen
+CCI+VZ,2,0.2288,0,0,False,[],0.0207,61.8,"[-0.3221, 1.0]",VZ,johansen
+CCI+TMUS,2,0.1939,0,0,False,[],0.0207,47.6,"[1.0, -0.8685]",CCI,johansen
+VZ+TMUS,2,0.3493,0,0,False,[],0.0393,76.6,"[1.0, -0.2623]",VZ,johansen
+SBAC+TMUS,2,0.2362,0,0,False,[],0.1096,75.5,"[-0.8685, 1.0]",TMUS,johansen
+AMT+TMUS,2,0.1747,0,0,False,[],0.1266,77.1,"[1.0, -0.9335]",AMT,johansen
+AMT+CCI,2,0.7623,0,0,False,[],0.3526,84.3,"[-0.9228, 1.0]",CCI,johansen

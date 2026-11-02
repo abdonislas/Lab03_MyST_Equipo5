@@ -4,16 +4,19 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
-TICKERS = ["VZ", "T", "BCE", "DIS", "AMX", "NFLX"]
+TICKERS = ["AMT", "CCI", "SBAC", "VZ", "T", "TMUS"]
 START, END = "2015-10-01", "2026-10-01"   # ~10 años, fijo => reproducible
 SEED = 42
 ART = "artifacts"
 
 
 EVENTOS = {
+    "TMUS": ("2020-04-01", "Cierre de fusion con Sprint"),
     "T":    ("2022-04-11", "Spin-off de WarnerMedia (AT&T)"),
-    "DIS":  ("2019-03-20", "Cierre de compra de Fox"),
-    "NFLX": ("2015-07-15", "Split 7:1 (previo a la ventana)"),
+    # Cierre de la venta: 2026-05-01 (10-Q de CCI, Q1 2026). No aparece como salto
+    # |z|>6 (ese dia +0.54%, z=0.3); por eso se anota la fecha del anuncio, que si salta.
+    "CCI":  ("2025-03-14", "Anuncio de la venta de fibra y small cells"),
+    "SBAC": ("2026-04-02", "Alza de 18.9% por reportes de posible venta de la empresa"),
 }
 
 

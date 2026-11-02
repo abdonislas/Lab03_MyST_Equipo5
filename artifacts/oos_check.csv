@@ -1,0 +1,4 @@
+muestra,fecha_inicio,fecha_fin,n_obs,ADF_spread_p,vida_media,pasa_ADF,pasa_vida_media
+train,2015-10-01,2022-05-03,1659,0.012,41.3,True,True
+test,2022-05-04,2024-07-17,553,0.8789,149.9,False,False
+val,2024-07-18,2026-09-30,553,0.0118,20.9,True,True

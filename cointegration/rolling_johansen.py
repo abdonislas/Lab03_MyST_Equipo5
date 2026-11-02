@@ -17,6 +17,7 @@ def normalizar_vector(vec, leg=0):
 def main():
     chosen = json.load(open(f"{ART}/chosen_group.json"))
     cols = chosen["grupo"].split("+")
+    leg = cols.index(chosen["pata_normalizacion"])   # misma pata fija que en screening
     px = pd.read_csv(f"{ART}/prices_train.csv", index_col=0, parse_dates=True)
     data = np.log(px[cols]).dropna()
 
@@ -25,7 +26,7 @@ def main():
         ventana = data.iloc[fin - WIN:fin]
         try:
             jo = coint_johansen(ventana, det_order=0, k_ar_diff=1)
-            w = normalizar_vector(jo.evec[:, 0])
+            w = normalizar_vector(jo.evec[:, 0], leg)
         except Exception:
             continue
         fila = {"fecha": ventana.index[-1].date()}
