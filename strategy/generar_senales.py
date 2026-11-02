@@ -32,6 +32,7 @@
 #                                       burn_in, L, K_obj, q, lambda, mu_0, R2_0, P2_0, theta
 # =============================================================================
 import json
+import os
 import numpy as np
 import pandas as pd
 
@@ -46,7 +47,8 @@ MUESTRAS = ["train", "test", "val"]
 COLUMNAS = ["muestra", "en_burn_in", "AMT", "SBAC", "beta", "s", "mu", "sigma", "z",
             "d", "h", "motivo_cierre"]
 # delta del Filtro 1. Por defecto 1e-6: beta mas estable y menos rebalanceo. La eleccion
-# final entre 1e-6 y 1e-5 se hara en el grid search por Sharpe en train.
+# final entre 1e-6 y 1e-5 se hizo en el grid search por Sharpe en train
+# (strategy/grid_search.py -> artifacts/theta_optimo.json): delta* = 1e-6.
 DELTA_FINAL = 1e-6
 DELTAS_MOMENTOS = (1e-6, 1e-5)
 
@@ -62,10 +64,12 @@ def cargar_precios(cols=("AMT", "SBAC")):
     return pd.concat(partes)
 
 
-def correr_pipeline(px, beta_fijo, vida_media, theta=THETA_INICIAL, delta=DELTA_FINAL):
+def correr_pipeline(px, beta_fijo, vida_media, theta=THETA_INICIAL, delta=DELTA_FINAL,
+                    theta_estatico=None, L_estatico=None):
     """Corre todo sobre px (precios + columna muestra), en orden cronologico.
     R e inicializacion se fijan SOLO con filas de train; delta viene de afuera
-    (DELTA_FINAL o el que pruebe el grid search).
+    (DELTA_FINAL o el que pruebe el grid search). theta_estatico y L_estatico permiten
+    usar otra politica/ventana en el estatico (None = mismo theta y L = 83).
     Regresa un diccionario con los DataFrames y los parametros."""
     y = np.log(px["AMT"]).values                     # observacion: log AMT
     x = np.log(px["SBAC"]).values                    # regresor: log SBAC
@@ -104,8 +108,10 @@ def correr_pipeline(px, beta_fijo, vida_media, theta=THETA_INICIAL, delta=DELTA_
     kalman = pd.concat([kalman, reglas_k.set_index(px.index)], axis=1)
 
     # ---- Linea base estatica: mismo theta, misma ventana operable ----
-    est = zscore_estatico(np.log(px["AMT"]), np.log(px["SBAC"]), beta_fijo, L)
-    reglas_e = aplicar_reglas(est["z"].values, operable=~en_burn_in, **theta)
+    theta_e = theta if theta_estatico is None else theta_estatico
+    L_e = L if L_estatico is None else L_estatico
+    est = zscore_estatico(np.log(px["AMT"]), np.log(px["SBAC"]), beta_fijo, L_e)
+    reglas_e = aplicar_reglas(est["z"].values, operable=~en_burn_in, **theta_e)
     estatico = pd.concat([px[["muestra", "AMT", "SBAC"]], est,
                           reglas_e.set_index(px.index)], axis=1)
     estatico.insert(1, "en_burn_in", en_burn_in)
@@ -114,6 +120,7 @@ def correr_pipeline(px, beta_fijo, vida_media, theta=THETA_INICIAL, delta=DELTA_
               "Q": (delta / (1 - delta)) * np.eye(2), "R_ols": R_ols,
               "deltas_momentos": list(DELTAS_MOMENTOS), "delta_max_ml": DELTA_MAX,
               "z0": z0, "x_media_burnin": x_media, "burn_in": BURN_IN, "theta": theta,
+              "theta_estatico": theta_e, "L_estatico": L_e,
               "vida_media": vida_media, **params2}      # params2 trae L, K_obj, q, lambda...
     f1.insert(0, "muestra", px["muestra"].values)
     f2.insert(0, "muestra", px["muestra"].values)
@@ -126,7 +133,18 @@ def main():
     chosen = json.load(open(f"{ART}/chosen_group.json"))
     beta_fijo = -chosen["vector"][1]                 # vector [1, -0.8631] -> beta = 0.8631
     px = cargar_precios()
-    res = correr_pipeline(px, beta_fijo, chosen["vida_media"])
+    # Si ya se corrio el grid search, usar el theta* congelado de cada metodo
+    kw = {}
+    if os.path.exists(f"{ART}/theta_optimo.json"):
+        opt = json.load(open(f"{ART}/theta_optimo.json"))
+        claves = ["z_in", "z_out", "z_stop", "h_max"]
+        kw = {"theta": {c: opt["kalman"][c] for c in claves},
+              "theta_estatico": {c: opt["estatico"][c] for c in claves},
+              "L_estatico": opt["estatico"]["L"]}
+        if opt["kalman"]["delta"] != DELTA_FINAL:
+            print(f"!!! ADVERTENCIA: delta* del grid ({opt['kalman']['delta']}) "
+                  f"!= DELTA_FINAL ({DELTA_FINAL})")
+    res = correr_pipeline(px, beta_fijo, chosen["vida_media"], **kw)
 
     for nombre in ["kalman", "estatico"]:
         res[nombre].to_csv(f"{ART}/senales_{nombre}.csv", index_label="fecha")

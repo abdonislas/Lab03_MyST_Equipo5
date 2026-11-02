@@ -1,0 +1,25 @@
+{
+  "kalman": {
+    "z_in": 2.0,
+    "z_out": 0.5,
+    "z_stop": 4.0,
+    "h_max": 41,
+    "delta": 1e-06,
+    "R": 0.000484729179885682,
+    "L_filtro2": 83,
+    "sharpe_train": 0.4829099158852897,
+    "n_ops_train": 11,
+    "min_ops": 10
+  },
+  "estatico": {
+    "z_in": 2.0,
+    "z_out": 0.25,
+    "z_stop": 3.0,
+    "h_max": 41,
+    "L": 83,
+    "sharpe_train": 0.5699675176704511,
+    "n_ops_train": 30,
+    "min_ops": 10
+  },
+  "advertencias": []
+}

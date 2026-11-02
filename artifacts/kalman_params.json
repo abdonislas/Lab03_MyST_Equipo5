@@ -27,9 +27,16 @@
   "theta": {
     "z_in": 2.0,
     "z_out": 0.5,
-    "z_stop": 3.5,
-    "h_max": 83
+    "z_stop": 4.0,
+    "h_max": 41
   },
+  "theta_estatico": {
+    "z_in": 2.0,
+    "z_out": 0.25,
+    "z_stop": 3.0,
+    "h_max": 41
+  },
+  "L_estatico": 83,
   "vida_media": 41.3,
   "mu_0": 4.281391862649224,
   "R2_0": 0.0013066618963943014,
