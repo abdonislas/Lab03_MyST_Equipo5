@@ -1,6 +1,4 @@
 # backtest/motor.py
-# Backtest oficial con contabilidad multi-pata. Es generico: funciona para n activos,
-# no tiene tickers escritos en el codigo y lee todo de artifacts/.
 # Ejecutar desde la raiz:  python -m backtest.motor
 #
 # ============================== CONVENCIONES ==============================
@@ -65,9 +63,6 @@ class Config:
     base_dias: int = 365
 
 
-# ---------------------------------------------------------------------------
-# Piezas basicas
-# ---------------------------------------------------------------------------
 def patas_del_grupo(chosen):
     """Lista de activos con la pata de normalizacion primero (peso +1)."""
     patas = chosen["grupo"].split("+")
@@ -109,9 +104,8 @@ def a_bool(serie):
     return serie.astype(str).str.strip().str.lower().isin(["true", "1"]).to_numpy()
 
 
-# ---------------------------------------------------------------------------
 # Simulacion de una muestra
-# ---------------------------------------------------------------------------
+
 def simular(fechas, precios, pesos, d, banda, patas, cfg=Config(), motivos=None):
     """Simula una muestra dia por dia.
     fechas: DatetimeIndex; precios: (n x k); pesos: (n x k) vector w de cada dia;
@@ -216,9 +210,8 @@ def simular(fechas, precios, pesos, d, banda, patas, cfg=Config(), motivos=None)
             pd.DataFrame(fills, columns=col_fills))
 
 
-# ---------------------------------------------------------------------------
 # Un metodo completo: tres muestras x politicas
-# ---------------------------------------------------------------------------
+
 def correr_metodo(senales, patas, theta, reglas_fn=None, politicas=POLITICAS, cfg=Config()):
     """Corre las tres muestras de un metodo con cada politica de rebalanceo.
     senales: DataFrame de artifacts/senales_<metodo>.csv (indice fecha).
