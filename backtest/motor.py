@@ -1,42 +1,8 @@
 # backtest/motor.py
-# Ejecutar desde la raiz:  python -m backtest.motor
-#
-# ============================== CONVENCIONES ==============================
-# Son las mismas del evaluador simple de strategy/evaluador.py, para que los numeros
-# sean comparables con artifacts/metricas_preliminares.csv:
-#   - La senal d_t se calcula con el cierre de t y se ejecuta al CIERRE de t+1.
-#   - Cada muestra (train sin burn-in, test, val) arranca plana y con 1,000,000.
-#     Las reglas se vuelven a aplicar desde cero sobre el z de cada muestra con theta*.
-#   - Al abrir se usa el 80% del capital (bruto: largos + cortos), repartido segun el
-#     vector de pesos w del dia de la senal:
-#         N_i = d * 0.8 * V * w_i / sum_j |w_j|        (nocional con signo de la pata i)
-#     Para un par con w = (1, -beta) esto da N_1 = 0.8V/(1+beta) y N_2 = -0.8V*beta/(1+beta).
-#   - Comision: 0.125% del nocional operado, por pata, en cada compra o venta
-#     (entrada, salida, rebalanceo y liquidacion al final de la muestra).
-#   - Prestamo: 0.25% anual sobre el nocional de las patas cortas, por dia natural
-#     (base 365), con el precio del cierre anterior.
-#   - Valor del portafolio = efectivo + sum_i q_i * P_i, con q_i acciones con signo.
-#     Comprar baja el efectivo, vender en corto lo sube; el valor solo cambia por el
-#     P&L de precios, las comisiones y el prestamo.
-#
-# ======================= POLITICA DE REBALANCEO =======================
-# Un solo parametro, la banda. Mientras hay posicion, cada dia se compara la mezcla
-# actual de nocionales contra la objetivo (pesos del ultimo dia de senal y 80% del
-# capital actual):
-#       desviacion = sum_i | a_i / sum|a|  -  o_i / sum|o| |
-# Si desviacion > banda, se opera hasta el objetivo.
-#   banda = 0     -> rebalanceo diario (lo que pide el enunciado)
-#   banda = 0.02  -> banda de no-rebalanceo: solo se opera si la mezcla se movio mas de 2%
-#   banda = inf   -> sin rebalanceo: acciones fijas de la entrada a la salida
-#                    (es exactamente el evaluador simple; sirve para validar la contabilidad)
-#
-# ============================== SALIDAS ==============================
-#   artifacts/bt_diario.csv       una fila por dia, metodo, politica y muestra:
-#                                 d, efectivo, q_<activo>, valor_<activo>, capital,
-#                                 pnl_bruto, comision, prestamo, rebalanceo, desviacion
-#   artifacts/bt_operaciones.csv  bitacora: una fila por operacion cerrada
-#   artifacts/bt_fills.csv        cada compra o venta por pata, con su comision
-#   artifacts/bt_config.json      parametros usados
+# Backtest oficial multi-pata: la senal del cierre de t se ejecuta al cierre de t+1,
+# se invierte el 80% del capital segun el vector de pesos, comision de 0.125% por pata
+# y prestamo de 0.25% anual sobre los cortos. Cada muestra arranca plana con 1,000,000.
+# Politicas de rebalanceo: diario, bandas de 1%, 2% y 5%, y sin rebalanceo (acciones fijas).
 import json
 from dataclasses import dataclass, asdict
 
