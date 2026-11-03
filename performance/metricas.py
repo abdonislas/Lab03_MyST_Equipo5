@@ -1,24 +1,7 @@
 # performance/metricas.py
-# Metricas de desempeno a partir de las salidas del backtest (no vuelve a simular).
-# Ejecutar desde la raiz:  python -m performance.metricas
-#
-# Entradas:  artifacts/bt_diario.csv, artifacts/bt_operaciones.csv, artifacts/bt_fills.csv
-# Salidas:
-#   artifacts/bt_metricas.csv     una fila por metodo, politica y muestra (train, test, val
-#                                 y "completa" = las tres encadenadas)
-#   artifacts/bt_curvas.csv       curva de capital por muestra y encadenada, drawdowns y
-#                                 Sharpe movil de 252 dias (lo que grafica el dashboard)
-#   artifacts/bt_rebalanceo.csv   costo del rebalanceo diario contra las bandas y contra
-#                                 no rebalancear
-#
-# Definiciones (tasa libre de riesgo = 0, 252 dias por anio):
-#   Sharpe   = media(r) / desv(r) * raiz(252), r = rendimientos diarios del capital
-#   Sortino  = media(r) / raiz(media(min(r, 0)^2)) * raiz(252)
-#   Max DD   = minimo de capital / maximo previo - 1
-#   Calmar   = retorno anualizado / |Max DD|
-#   Win rate = operaciones con P&L neto > 0 / operaciones
-#   Profit factor = suma de P&L neto ganador / |suma de P&L neto perdedor|
-#   Atribucion: P&L neto = P&L bruto (precios) - comisiones - prestamo
+# Metricas de desempeno a partir de las salidas del backtest (no vuelve a simular):
+# Sharpe, Sortino, Calmar, max drawdown, win rate, profit factor, Sharpe movil de 252 dias,
+# atribucion de costos y costo del rebalanceo contra no rebalancear.
 import numpy as np
 import pandas as pd
 
@@ -27,10 +10,8 @@ DIAS_ANIO = 252
 VENTANA_SHARPE = 252
 MUESTRAS = ["train", "test", "val"]
 
-
-# ---------------------------------------------------------------------------
 # Metricas individuales
-# ---------------------------------------------------------------------------
+
 def retornos(capital):
     return pd.Series(capital, dtype=float).pct_change().dropna()
 
@@ -82,9 +63,8 @@ def sharpe_movil(r, ventana=VENTANA_SHARPE):
     return r.rolling(ventana).mean() / r.rolling(ventana).std() * np.sqrt(DIAS_ANIO)
 
 
-# ---------------------------------------------------------------------------
 # Curvas
-# ---------------------------------------------------------------------------
+
 def curvas(diario):
     """Capital por muestra (cada una arranca en el capital inicial) y encadenado
     (test arranca con el capital final de train y val con el de test)."""
@@ -112,9 +92,8 @@ def curvas(diario):
     return pd.concat(res, ignore_index=True)
 
 
-# ---------------------------------------------------------------------------
 # Tablas
-# ---------------------------------------------------------------------------
+
 def fila_metricas(capital, dia, ops, fills):
     r = retornos(capital)
     pnl = ops["pnl_neto"].to_numpy(dtype=float)
