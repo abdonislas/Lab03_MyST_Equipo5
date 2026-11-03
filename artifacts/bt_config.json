@@ -1,0 +1,34 @@
+{
+  "capital": 1000000.0,
+  "exposicion": 0.8,
+  "comision": 0.00125,
+  "tasa_prestamo": 0.0025,
+  "base_dias": 365,
+  "patas": [
+    "AMT",
+    "SBAC"
+  ],
+  "politicas": {
+    "diario": 0.0,
+    "banda_1": 0.01,
+    "banda_2": 0.02,
+    "banda_5": 0.05,
+    "sin_rebalanceo": null
+  },
+  "politica_oficial": "diario",
+  "theta": {
+    "kalman": {
+      "z_in": 2.0,
+      "z_out": 0.5,
+      "z_stop": 4.0,
+      "h_max": 41
+    },
+    "estatico": {
+      "z_in": 2.0,
+      "z_out": 0.25,
+      "z_stop": 3.0,
+      "h_max": 41
+    }
+  },
+  "nota": "politica con banda null = sin rebalanceo (banda infinita)"
+}
