@@ -1,0 +1,4 @@
+sub_muestra,n_obs,ADF_spread_p,estacionario,vida_media
+sub_train,995,0.0136,True,42.8
+sub_test,332,0.6147,False,20.6
+sub_val,332,0.8497,False,98.8
