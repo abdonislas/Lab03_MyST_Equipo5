@@ -45,11 +45,12 @@ cointegration/   orden de integración, screening, robustez OOS, Johansen móvil
 kalman/          filtro 1 (pesos) y filtro 2 (spread)
 strategy/        VECM, reglas, modelo estático, generación de señales, optimización de θ
 backtest/        motor de backtest multi-pata y políticas de rebalanceo
-performance/     métricas de desempeño
+performance/     métricas de desempeño, figuras y reporte PDF
 dashboard/       app de Streamlit (solo lee artifacts/)
 tests/           pruebas con pytest
 artifacts/       snapshot de precios y todos los resultados intermedios
-docs/            formulación de Powell y notas de entrega
+docs/            reporte (reporte.pdf y figuras/), formulación de Powell y notas de entrega
+project_management/  charter, sprints y postmortem
 main.py          punto de entrada del pipeline
 ```
 
@@ -58,8 +59,8 @@ main.py          punto de entrada del pipeline
 Requisitos: Python 3.11 o superior (probado con 3.12) y git.
 
 ```bash
-git clone https://github.com/abdonislas/Lab03_MyST_Isabela-Andrea-Abdon-repository.git
-cd Lab03_MyST_Isabela-Andrea-Abdon-repository
+git clone https://github.com/abdonislas/Lab03_MyST_Equipo5.git
+cd Lab03_MyST_Equipo5
 python -m venv .venv
 ```
 
@@ -86,7 +87,7 @@ Desde la raíz del repositorio, con el entorno activado:
 python main.py
 ```
 
-Este comando corre los 11 pasos del pipeline en unos 20 segundos y regenera todo `artifacts/`. Usa el snapshot de precios guardado en `artifacts/prices_*.csv`, así que no necesita internet y los resultados son idénticos en cada corrida: la semilla está fijada en 42, incluida la del sampler de Optuna.
+Este comando corre los 11 pasos del pipeline en unos 20 segundos y regenera todo `artifacts/`. Usa el snapshot de precios guardado en `artifacts/prices_*.csv`, así que no necesita internet y los resultados son idénticos en cada corrida en la misma computadora: la semilla está fijada en 42, incluida la del sampler de Optuna. En otra computadora, diferencias de redondeo pueden llevar a la optimización bayesiana a otro θ\* (sección 6 del reporte); los artifacts del repositorio son los de la corrida oficial.
 
 Opciones:
 
@@ -95,6 +96,7 @@ Opciones:
 | `python main.py --desde grid_search` | Corre desde un paso intermedio en adelante (`python main.py --help` muestra los nombres de los pasos) |
 | `python main.py --descargar` | Vuelve a descargar los precios con yfinance en lugar de usar el snapshot. Yahoo puede ajustar precios históricos, así que los resultados pueden cambiar |
 | `python -m pytest` | Corre las pruebas de causalidad, contabilidad y calibración del filtro |
+| `python -m performance.reporte` | Regenera las figuras de `docs/figuras/` y el reporte `docs/reporte.pdf` a partir de `artifacts/` (no vuelve a correr el pipeline) |
 
 ## Dashboard
 
@@ -139,11 +141,12 @@ El interruptor *Incluir burn-in* agrega los primeros 126 días del train, que no
 
 ## Uso de Inteligencia Artificial
 
-Usamos asistentes de IA generativa, en su mayoría GitHub Copilot y Claude (Anthropic), como apoyo en tres partes del proyecto:
+Usamos asistentes de IA generativa, en su mayoría GitHub Copilot y Claude (Anthropic), como apoyo en cuatro partes del proyecto:
 
 - **Código del pipeline:** escribir y depurar los módulos de datos, cointegración, filtros de Kalman, generación de señales, optimización de θ con Optuna, backtest y métricas.
 - **Dashboard:** construir la app de Streamlit ([dashboard/app.py](dashboard/app.py)), con sus gráficas de Plotly y sus filtros interactivos.
 - **Notebooks:** generar las gráficas de [Analisis_Lab03.ipynb](Analisis_Lab03.ipynb) y [Figuras_Lab03.ipynb](Figuras_Lab03.ipynb).
+- **Reporte y gestión:** escribir el generador del reporte PDF y sus figuras a partir de `artifacts/` ([performance/reporte.py](performance/reporte.py) y [performance/figuras.py](performance/figuras.py)) y redactar los borradores de charter, sprints y postmortem.
 
 Además, con Claude Code:
 
