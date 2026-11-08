@@ -9,6 +9,7 @@ import random
 import sys
 import time
 from pathlib import Path
+from cointegration import robustez_oos
 
 import numpy as np
 
@@ -21,6 +22,7 @@ PASOS = [
     ("datos", "data.download_data", "Descarga, revision de huecos y saltos, split 60/20/20"),
     ("integracion", "cointegration.integration_order", "Orden de integracion (ADF y KPSS)"),
     ("screening", "cointegration.screening", "Correlacion, Engle-Granger, Johansen y embudo"),
+    ("robustez_oos", "cointegration.robustez_oos", "Re-split del train en sub-train/sub-test/sub-val: confirma si se rompe"),  # <-- paso nuevo
     ("fuera_de_muestra", "cointegration.oos_check", "Vector de train evaluado en test y val"),
     ("johansen_movil", "cointegration.rolling_johansen", "Johansen movil (primer eigenvector)"),
     ("vecm", "strategy.VECM", "VECM con el vector de Johansen"),
@@ -54,23 +56,3 @@ def main(argv=None):
     sys.path.insert(0, str(RAIZ))
     (RAIZ / "artifacts").mkdir(exist_ok=True)
     fijar_semilla()
-
-    inicio = NOMBRES.index(args.desde)
-    t_total = time.time()
-    for i, (nombre, modulo, descripcion) in enumerate(PASOS[inicio:], start=inicio + 1):
-        print(f"\n{'=' * 78}\n[{i}/{len(PASOS)}] {nombre}: {descripcion}\n{'=' * 78}")
-        if nombre == "datos" and not args.descargar and hay_snapshot():
-            print("Se usan los precios guardados en artifacts/ (python main.py --descargar "
-                  "para bajarlos de nuevo).")
-            continue
-        t0 = time.time()
-        fijar_semilla()
-        importlib.import_module(modulo).main()
-        print(f"--- {nombre} listo en {time.time() - t0:.1f} s")
-
-    print(f"\nPipeline completo en {time.time() - t_total:.1f} s.")
-    print("Dashboard:  streamlit run dashboard/app.py")
-
-
-if __name__ == "__main__":
-    main()
