@@ -1025,11 +1025,14 @@ def construir():
     s += [*H("8. Pruebas automáticas", "h1")]
     s += N.tabla("Pruebas del enunciado y su estado (<i>python -m pytest</i>).", tabla(
         [["prueba", "qué se verifica en el repositorio", "estado"],
-         ["1. Causalidad", "<i>test_causalidad.py</i>: al cortar los datos a la mitad de test, z, β y la señal antes del "
-                           "corte son idénticos a los de la corrida completa, en Kalman y estático.", "pasa"],
-         ["2. Normalización", "No hay prueba automática. La normalización se cumple por construcción: AMT = 1 en el "
-                              "vector de Johansen (<i>normalizar_vector</i>) y w = (1, −β) en el backtest.",
-          "sin prueba"],
+         ["1. Causalidad", "<i>test_causalidad.py</i>: con tres cortes (a 1/3 y 2/3 de test y a la mitad de val), z, β y la "
+                           "señal antes de cada corte son idénticos a los de la corrida completa, en Kalman y estático. "
+                           "No se corta dentro de train porque δ, R y la inicialización se calibran con train completo.",
+          "pasa"],
+         ["2. Normalización", "<i>test_normalizacion.py</i>: el vector de Johansen tiene AMT = 1 como pata de mayor valor "
+                              "absoluto y SBAC con signo contrario; en el filtro 1, w = (1, −β) con β &gt; 0 en todo el "
+                              "periodo operado y un cambio máximo de 0.024 entre días consecutivos (límite 0.05).",
+          "pasa"],
          ["3. Contabilidad", "<i>test_contabilidad.py</i>: identidades de efectivo, posiciones, P&L y costos en un caso "
                              "sintético de 3 patas y con las señales reales, tamaño y signos al entrar, y que sin "
                              "rebalanceo el backtest reproduce al evaluador simple.", "pasa"],

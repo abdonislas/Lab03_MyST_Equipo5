@@ -1,0 +1,4 @@
+particion,vector_sub_train,pata,fecha_inicio,fecha_fin,n_obs,EG_p_AMT_SBAC,EG_p_SBAC_AMT,traza_r0,cv95_traza_r0,traza_r1,cv95_traza_r1,maxeig_r0,cv95_maxeig_r0,maxeig_r1,cv95_maxeig_r1,rank_traza,rank_maxeig,ADF_spread_p,vida_media
+sub_train,"[1.0, -0.9086]",AMT,2015-10-01,2019-09-13,995,0.0528,0.0806,12.554,15.494,0.196,3.842,12.358,14.264,0.196,3.842,0,0,0.0136,42.8
+sub_test,"[1.0, -0.9086]",AMT,2019-09-16,2021-01-07,332,0.1852,0.7922,12.498,15.494,3.692,3.842,8.806,14.264,3.692,3.842,0,0,0.6147,20.6
+sub_val,"[1.0, -0.9086]",AMT,2021-01-08,2022-05-03,332,0.912,0.9488,5.106,15.494,0.233,3.842,4.873,14.264,0.233,3.842,0,0,0.8497,98.8

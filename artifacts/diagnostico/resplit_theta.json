@@ -1,0 +1,55 @@
+{
+  "kalman": {
+    "z_in": 2.0,
+    "z_out": 0.5,
+    "z_stop": 3.5,
+    "h_max": 43,
+    "delta": 1e-06,
+    "R": 0.0003459513891969882,
+    "L_filtro2": 86,
+    "sharpe_sub_train": 0.30756237952214127,
+    "n_ops_sub_train": 5,
+    "min_ops": 5,
+    "evaluadas": 162,
+    "factibles_10": 0
+  },
+  "estatico": {
+    "z_in": 1.5,
+    "z_out": 0.0,
+    "z_stop": 3.0,
+    "h_max": 43,
+    "L": 43,
+    "sharpe_sub_train": 0.9629760212894533,
+    "n_ops_sub_train": 20,
+    "min_ops": 10,
+    "evaluadas": 243,
+    "factibles_10": 154
+  },
+  "vector_sub_train": [
+    1.0,
+    -0.9086
+  ],
+  "pata_normalizacion": "AMT",
+  "beta_sub_train": 0.9086,
+  "vida_media_sub_train": 42.8,
+  "fechas": {
+    "sub_train": [
+      "2015-10-01",
+      "2019-09-13",
+      995
+    ],
+    "sub_test": [
+      "2019-09-16",
+      "2021-01-07",
+      332
+    ],
+    "sub_val": [
+      "2021-01-08",
+      "2022-05-03",
+      332
+    ]
+  },
+  "advertencias": [
+    "kalman: ninguna configuracion llega a 10 operaciones; se uso minimo 5"
+  ]
+}

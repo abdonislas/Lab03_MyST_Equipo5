@@ -17,7 +17,7 @@ Microestructura y Sistemas de Trading, ITESO. Equipo 5.
 - Backtest multi-pata con cinco políticas de rebalanceo: diario, bandas de 1%, 2% y 5%, y sin rebalanceo.
 - Pruebas de robustez fuera de muestra: re-split del train, vector de train evaluado en test y val, y Johansen móvil.
 - Formulación de la estrategia con el marco de decisiones secuenciales de Powell ([docs/powell.md](docs/powell.md)).
-- Pruebas automáticas de causalidad (sin lookahead), contabilidad y calibración del filtro.
+- Pruebas automáticas de causalidad (sin lookahead), normalización de pesos, contabilidad y calibración del filtro.
 - Dashboard interactivo de una página con vista ejecutiva y vista técnica.
 
 ## Descripción del proyecto
@@ -49,7 +49,7 @@ performance/     métricas de desempeño, figuras y reporte PDF
 dashboard/       app de Streamlit (solo lee artifacts/)
 tests/           pruebas con pytest
 artifacts/       snapshot de precios y todos los resultados intermedios
-docs/            reporte (reporte.pdf y figuras/), formulación de Powell y notas de entrega
+docs/            reporte (reporte.pdf y figuras/) y formulación de Powell
 project_management/  charter, sprints y postmortem
 main.py          punto de entrada del pipeline
 ```
@@ -87,15 +87,18 @@ Desde la raíz del repositorio, con el entorno activado:
 python main.py
 ```
 
-Este comando corre los 11 pasos del pipeline en unos 20 segundos y regenera todo `artifacts/`. Usa el snapshot de precios guardado en `artifacts/prices_*.csv`, así que no necesita internet y los resultados son idénticos en cada corrida en la misma computadora: la semilla está fijada en 42, incluida la del sampler de Optuna. En otra computadora, diferencias de redondeo pueden llevar a la optimización bayesiana a otro θ\* (sección 6 del reporte); los artifacts del repositorio son los de la corrida oficial.
+Este comando corre el pipeline en unos 20 segundos y regenera `artifacts/`. Usa el snapshot de precios guardado en `artifacts/prices_*.csv` (no necesita internet) y el θ\* congelado en `artifacts/theta_optimo.json`, así que reproduce exactamente los resultados del reporte y del dashboard en cualquier computadora. La semilla está fijada en 42, incluida la del sampler de Optuna.
+
+θ\* se escogió una sola vez con optimización bayesiana en train y se congeló. Para volver a buscarlo, usa `python main.py --reoptimizar`. Ojo: en otra computadora, diferencias de redondeo del orden de 1e-14 pueden llevar a Optuna a otro θ\* (sección 6 del reporte compara las dos corridas).
 
 Opciones:
 
 | Comando | Qué hace |
 |---|---|
 | `python main.py --desde grid_search` | Corre desde un paso intermedio en adelante (`python main.py --help` muestra los nombres de los pasos) |
+| `python main.py --reoptimizar` | Vuelve a correr la optimización bayesiana de θ en train en lugar de usar el θ\* congelado |
 | `python main.py --descargar` | Vuelve a descargar los precios con yfinance en lugar de usar el snapshot. Yahoo puede ajustar precios históricos, así que los resultados pueden cambiar |
-| `python -m pytest` | Corre las pruebas de causalidad, contabilidad y calibración del filtro |
+| `python -m pytest` | Corre las pruebas de causalidad, normalización, contabilidad y calibración del filtro |
 | `python -m performance.reporte` | Regenera las figuras de `docs/figuras/` y el reporte `docs/reporte.pdf` a partir de `artifacts/` (no vuelve a correr el pipeline) |
 
 ## Dashboard
@@ -158,6 +161,6 @@ Además, con Claude Code:
 
 Las decisiones de modelado son del equipo: la selección del grupo AMT + SBAC, los supuestos de costos y la interpretación de los resultados. El equipo revisó el código generado o sugerido por IA y lo validó con:
 
-- las pruebas automáticas (`python -m pytest`: causalidad, contabilidad y calibración del filtro);
+- las pruebas automáticas (`python -m pytest`: causalidad, normalización, contabilidad y calibración del filtro);
 - la reproducibilidad del pipeline (dos corridas de `python main.py` producen artifacts idénticos);
 - la comparación entre el backtest y el evaluador independiente de `strategy/`.

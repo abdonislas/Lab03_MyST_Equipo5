@@ -25,7 +25,7 @@ PASOS = [
     ("fuera_de_muestra", "cointegration.oos_check", "Vector de train evaluado en test y val"),
     ("johansen_movil", "cointegration.rolling_johansen", "Johansen movil (primer eigenvector)"),
     ("vecm", "strategy.vecm", "VECM con el vector de Johansen"),
-    ("grid_search", "strategy.grid_search", "Grid search de theta en train (unos 15 segundos)"),
+    ("grid_search", "strategy.grid_search", "Optimizacion bayesiana de theta en train (solo con --reoptimizar)"),
     ("senales", "strategy.generar_senales", "Filtros de Kalman, reglas y senales"),
     ("backtest", "backtest.motor", "Backtest multi-pata y politicas de rebalanceo"),
     ("metricas", "performance.metricas", "Metricas de desempeno"),
@@ -47,6 +47,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Lab 03 MyST, Equipo 5: pipeline completo")
     parser.add_argument("--descargar", action="store_true",
                         help="volver a descargar precios con yfinance en lugar de usar el snapshot")
+    parser.add_argument("--reoptimizar", action="store_true",
+                        help="volver a correr la optimizacion bayesiana de theta en lugar de usar el "
+                             "theta* congelado en artifacts/theta_optimo.json")
     parser.add_argument("--desde", choices=NOMBRES, default=NOMBRES[0],
                         help="correr desde este paso en adelante")
     args = parser.parse_args(argv)
@@ -63,6 +66,13 @@ def main(argv=None):
         if nombre == "datos" and not args.descargar and hay_snapshot():
             print("Se usan los precios guardados en artifacts/ (python main.py --descargar "
                   "para bajarlos de nuevo).")
+            continue
+        # theta* se escogio una vez en train y se congela. Optuna puede proponer otros puntos en otra
+        # computadora por diferencias de redondeo (seccion 6 del reporte), asi que por defecto se usa
+        # el theta* guardado para que python main.py reproduzca exactamente los resultados reportados.
+        if nombre == "grid_search" and not args.reoptimizar and (RAIZ / "artifacts" / "theta_optimo.json").exists():
+            print("Se usa el theta* congelado de artifacts/theta_optimo.json "
+                  "(python main.py --reoptimizar para volver a buscarlo).")
             continue
         t0 = time.time()
         fijar_semilla()
