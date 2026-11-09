@@ -431,19 +431,28 @@ def construir():
           *H("2.3 Embudo bloqueante: Johansen, ADF y vida media", "h2"),
           P("Los 57 grupos (todas las combinaciones de 2 a 6 activos) pasan por tres etapas en orden: (1) Johansen con "
             "constante y un rezago en diferencias, con rango entre 1 y n − 1 tanto por traza como por máximo eigenvalor "
-            "al 95%; (2) ADF del spread construido con el primer eigenvector, normalizado en la pata de mayor peso, con "
+            "al 95% (el rango se prueba en escalera: desde r = 0 se sube mientras el estadístico supere al crítico); (2) ADF del spread construido con el primer eigenvector, normalizado en la pata de mayor peso, con "
             "p &lt; 0.05; (3) vida media de un AR(1) del spread entre 5 y 60 días hábiles.")]
     cuenta = v2["etapa_caida"].value_counts()
     pasan = v2[v2["etapa_caida"] == "PASA"].sort_values("ADF_spread_p")
-    filas = [["grupo", "rango traza / máx. eig.", "ADF p", "vida media", "bandera roja", "motivo de la bandera"]]
+    filas = [["grupo", "traza r=0 (crít.)", "traza r≤1 (crít.)", "máx. eig. r=0 (crít.)", "máx. eig. r≤1 (crít.)",
+              "rango", "ADF p", "vida media", "bandera roja"]]
     for _, r in pasan.iterrows():
         roja = a_bool(pd.Series([r["bandera_roja"]]))[0]
-        filas.append([r["grupo"].replace("+", " + "), f"{r['rank_traza']} / {r['rank_maxeig']}", num(r["ADF_spread_p"], 4),
-                      f"{num(r['vida_media'], 1)} días", "sí" if roja else "no",
-                      (f"incluye {', '.join(ast.literal_eval(r['activo_no_I1']))} (no I(1))" if roja else "")])
+        filas.append([r["grupo"].replace("+", " + "),
+                      f"{num(r['traza_r0'], 2)} ({num(r['cv_traza_r0'], 2)})",
+                      f"{num(r['traza_r1'], 2)} ({num(r['cv_traza_r1'], 2)})",
+                      f"{num(r['maxeig_r0'], 2)} ({num(r['cv_maxeig_r0'], 2)})",
+                      f"{num(r['maxeig_r1'], 2)} ({num(r['cv_maxeig_r1'], 2)})",
+                      f"{r['rank_traza']} / {r['rank_maxeig']}", num(r["ADF_spread_p"], 4),
+                      f"{num(r['vida_media'], 1)} d",
+                      (f"sí: {', '.join(ast.literal_eval(r['activo_no_I1']))} no es I(1)" if roja else "no")])
     s += N.tabla(f"Grupos que pasan el embudo ({len(pasan)} de {len(v2)}; los otros "
-                 f"{int(cuenta.get('johansen', 0))} caen en Johansen). La tabla completa está en el anexo A.",
-                 tabla(filas, [3 * cm, 3.2 * cm, 1.6 * cm, 2 * cm, 2 * cm, 5.2 * cm], derecha=(2, 3)))
+                 f"{int(cuenta.get('johansen', 0))} caen en Johansen). Estadísticos de traza y de máximo eigenvalor "
+                 f"con su valor crítico al 95% entre paréntesis; se rechaza cuando el estadístico supera al crítico. "
+                 f"La tabla completa está en el anexo A.",
+                 tabla(filas, [2.6 * cm, 1.95 * cm, 1.95 * cm, 1.95 * cm, 1.95 * cm, 1.1 * cm, 1.3 * cm, 1.3 * cm,
+                               2.3 * cm], derecha=(1, 2, 3, 4, 6, 7), texto=True))
     s += [P(f"Se eligió <b>{grupo}</b> (criterio en <i>chosen_group.json</i>: el único grupo que pasa sin bandera roja, "
             f"con la mejor justificación económica, porque las dos son empresas de torres). Su vector normalizado en AMT "
             f"es (1, {num(-b1, 4)}): el spread es log AMT − {num(b1, 4)} log SBAC. En el backtest los pesos se aplican "
@@ -451,9 +460,9 @@ def construir():
           *H("2.4 Pruebas múltiples y lectura honesta del embudo", "h2"),
           P(f"Johansen se aplicó a {int(fpt['Johansen']['n_tests'])} grupos: al 5% esperaríamos "
             f"{num(fpt['Johansen']['FP_esperados'], 2)} falsos positivos por puro azar y pasan "
-            f"{int(((v2['rank_traza'] >= 1) & (v2['rank_maxeig'] >= 1)).sum())}. Los grupos comparten activos y las "
-            f"pruebas no son independientes, así que la cuenta es una referencia, pero dice que tres aprobados de 57 es "
-            f"justo lo que el azar produciría. Además, {int((v2['ADF_spread_p'] < 0.05).sum())} de los {len(v2)} grupos "
+            f"{int((v2['etapa_caida'] != 'johansen').sum())}. Los grupos comparten activos y las "
+            f"pruebas no son independientes, así que la cuenta es una referencia, pero dice que "
+            f"{int((v2['etapa_caida'] != 'johansen').sum())} aprobados de {len(v2)} no es más de lo que el azar produciría. Además, {int((v2['ADF_spread_p'] < 0.05).sum())} de los {len(v2)} grupos "
             f"tienen ADF del spread con p &lt; 0.05, incluidos casi todos los que fallan Johansen: el eigenvector se "
             f"estima para que el spread sea lo más estacionario posible en la misma muestra, y los valores críticos "
             f"estándar del ADF no corrigen eso. En la práctica la etapa que decide es Johansen, y la elección final "
@@ -1051,7 +1060,7 @@ def construir():
     contra = [
         f"AMT y SBAC no pasan Engle-Granger al 5% (p = {num(par['EG_p_AB'], 3)} y {num(par['EG_p_BA'], 3)}).",
         f"Se probaron {len(v1) + len(v2)} grupos en dos universos, y el universo se cambió después de ver resultados. "
-        f"Pasan Johansen 3 de 57 grupos del universo final, cuando el azar daría {num(fpt['Johansen']['FP_esperados'], 2)}.",
+        f"Pasan Johansen {int((v2['etapa_caida'] != 'johansen').sum())} de {len(v2)} grupos del universo final, cuando el azar daría {num(fpt['Johansen']['FP_esperados'], 2)}.",
         f"El vector se rompe fuera de muestra (ADF p = {num(o['test']['ADF_spread_p'], 2)} en test) y también dentro de "
         f"train (sub-test p = {num(rb['sub_test']['ADF_spread_p'], 2)}, sub-val p = {num(rb['sub_val']['ADF_spread_p'], 2)}).",
         f"El Johansen móvil no es estable: el peso de SBAC cambia de signo en {positivos} de {len(eig)} ventanas.",
@@ -1078,39 +1087,33 @@ def construir():
 
     # ============================================================== 10. reproducibilidad
     s += [*H("10. Reproducibilidad", "h1"),
-          P("Desde la raíz del repositorio, con Python 3.11 o superior: <i>pip install -r requirements.txt</i>; "
-            "<i>python main.py</i> corre los 11 pasos con los precios guardados y semilla 42; <i>python -m pytest</i> "
-            "corre las pruebas; <i>streamlit run dashboard/app.py</i> abre el dashboard; y <i>python -m "
-            "performance.reporte</i> regenera las figuras de <i>docs/figuras/</i> y este documento desde "
-            "<i>artifacts/</i>. Como se explica en la sección 6, otra computadora puede llegar a otro θ*; los artifacts "
-            "del repositorio son los de la corrida oficial. El uso de herramientas de IA está documentado en el README.")]
+          P("<i>pip install -r requirements.txt</i> y <i>python main.py</i> regeneran <i>artifacts/</i> con los precios "
+            "guardados, semilla 42 y el θ* congelado en <i>theta_optimo.json</i>, así que reproducen las cifras de este "
+            "reporte en cualquier computadora (<i>--reoptimizar</i> vuelve a correr Optuna; ver sección 6). "
+            "<i>python -m pytest</i> corre las pruebas, <i>streamlit run dashboard/app.py</i> abre el dashboard (incluida "
+            "la bitácora completa de operaciones) y <i>python -m performance.reporte</i> regenera este documento. El "
+            "uso de IA está documentado en el README.")]
 
     # ============================================================== anexos
     s += [PageBreak(), *H("Anexo A. Los 57 grupos del universo final", "h1"),
-          P("Ordenados por la etapa del embudo donde caen y por ADF. Rango por traza / por máximo eigenvalor al 95%; "
-            "la vida media es del spread con el primer eigenvector, en días hábiles.")]
-    filas = [["grupo", "n", "corr. mínima", "rango", "bandera roja", "ADF p", "vida media", "etapa donde cae"]]
+          P("Ordenados por la etapa del embudo donde caen y por ADF. Para cada grupo se dan los estadísticos de "
+            "Johansen de traza y de máximo eigenvalor para r = 0, con su valor crítico al 95% entre paréntesis (el "
+            "crítico depende del número de activos), y el rango resultante por traza / por máximo eigenvalor. Los "
+            "estadísticos para r ≤ 1 están en <i>screening_all_groups.csv</i>. La vida media es del spread con el "
+            "primer eigenvector, en días hábiles.")]
+    filas = [["grupo", "n", "corr. mín.", "traza r=0 (crít.)", "máx. eig. r=0 (crít.)", "rango", "band. roja",
+              "ADF p", "vida media", "etapa donde cae"]]
     for _, r in v2.iterrows():
         filas.append([r["grupo"].replace("+", " + "), str(r["n"]), num(r["corr_min_par"], 3),
+                      f"{num(r['traza_r0'], 1)} ({num(r['cv_traza_r0'], 1)})",
+                      f"{num(r['maxeig_r0'], 1)} ({num(r['cv_maxeig_r0'], 1)})",
                       f"{r['rank_traza']} / {r['rank_maxeig']}",
                       "sí" if a_bool(pd.Series([r["bandera_roja"]]))[0] else "no", num(r["ADF_spread_p"], 4),
                       num(r["vida_media"], 1), "pasa" if r["etapa_caida"] == "PASA" else r["etapa_caida"]])
     s += N.tabla("Embudo completo del universo final (<i>screening_all_groups.csv</i>).",
-                 tabla(filas, [5 * cm, 0.8 * cm, 1.9 * cm, 1.4 * cm, 1.9 * cm, 1.6 * cm, 1.8 * cm, 2.6 * cm],
-                       derecha=(1, 2, 5, 6)))
-    s += [*H("Anexo B. Bitácora de operaciones", "h1"),
-          P("Backtest oficial con rebalanceo diario; fechas de ejecución.")]
-    filas = [["método", "muestra", "#", "dirección", "entrada", "salida", "días", "motivo", "P&L neto", "retorno",
-              "rebal."]]
-    for _, r in ops.iterrows():
-        filas.append([METODOS[r["metodo"]], r["muestra"], str(int(r["operacion"])), r["direccion"],
-                      str(r["fecha_entrada"])[:10], str(r["fecha_salida"])[:10], str(int(r["dias"])),
-                      str(r["motivo_cierre"]).replace("_", " "), num(r["pnl_neto"], 0), pct(r["retorno"], 2),
-                      str(int(r["n_rebalanceos"]))])
-    s += N.tabla("Operaciones de los dos métodos (<i>bt_operaciones.csv</i>).",
-                 tabla(filas, [1.5 * cm, 1.5 * cm, 0.7 * cm, 2.1 * cm, 1.9 * cm, 1.9 * cm, 0.9 * cm, 1.9 * cm, 1.8 * cm,
-                               1.5 * cm, 1.2 * cm], derecha=(2, 6, 8, 9, 10)))
-    s += [KeepTogether([*H("Anexo C. Figuras del enunciado", "h1")] + N.tabla("Dónde está cada figura pedida (en <i>docs/figuras/</i> y en <i>Figuras_Lab03.ipynb</i>).", tabla(
+                 tabla(filas, [4.1 * cm, 0.6 * cm, 1.3 * cm, 2.2 * cm, 2.2 * cm, 1.1 * cm, 1.2 * cm, 1.3 * cm,
+                               1.2 * cm, 1.8 * cm], derecha=(1, 2, 3, 4, 7, 8)))
+    s += [KeepTogether([*H("Anexo B. Figuras del enunciado", "h1")] + N.tabla("Dónde está cada figura pedida (en <i>docs/figuras/</i> y en <i>Figuras_Lab03.ipynb</i>).", tabla(
         [["figura del enunciado", "en este reporte", "archivo"]] +
         [[e, f"Figura {n}", a] for e, n, a in sorted(N.mapa, key=lambda x: (not x[0][0].isdigit(), x[0][:2] if x[0][0].isdigit() else '', x[1]))], [8 * cm, 3 * cm, 6 * cm])))]
     return s

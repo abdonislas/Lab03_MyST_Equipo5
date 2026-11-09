@@ -22,7 +22,7 @@ En la revisión del avance se señaló que el modelo se sobreajusta: se rompe en
 | Reporte PDF generado desde `artifacts/` (`performance/reporte.py`) con Powell ×3, ejemplos numéricos, justificación de Q y R, tabla de grupos probados y resultados | Abdon | hecho | `docs/reporte.pdf` |
 | Figuras del reporte (`performance/figuras.py`, `docs/figuras/`) | Abdon | hecho | `docs/figuras/` |
 | Charter, sprints y postmortem | Abdon | hecho (postmortem en borrador) | `project_management/` |
-| Cambios de Andrea | Andrea | pendiente | |
+| Cambios de Andrea: θ* congelado por defecto en `main.py`, prueba de normalización y causalidad con tres cortes | Andrea | hecho (al cierre del sprint) | 863cc63 |
 
 ## Hallazgos del sprint
 

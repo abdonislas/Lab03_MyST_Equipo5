@@ -28,7 +28,7 @@ El pipeline tiene estas etapas:
 
 1. **Datos.** Descarga, revisión de huecos y de saltos (|z| > 6) contra eventos corporativos conocidos, y split 60/20/20.
 2. **Orden de integración.** ADF y KPSS para confirmar que cada serie es I(1).
-3. **Screening.** Embudo de correlación móvil, Engle-Granger y Johansen sobre los 57 grupos posibles, con conteo de falsos positivos esperados. Pasan tres grupos; se eligió **AMT + SBAC** (vector `[1, -0.8631]`, ADF del spread p = 0.012, vida media de 41.3 días), el único sin bandera roja y con la mejor justificación económica: ambas son REITs de torres.
+3. **Screening.** Embudo de correlación móvil, Engle-Granger y Johansen sobre los 57 grupos posibles, con conteo de falsos positivos esperados. Pasan dos grupos; se eligió **AMT + SBAC** (vector `[1, -0.8631]`, ADF del spread p = 0.012, vida media de 41.3 días), el único sin bandera roja y con la mejor justificación económica: ambas son REITs de torres.
 4. **Robustez y fuera de muestra.** Re-split del train, evaluación del vector de train en test y val, y primer eigenvector de Johansen en ventanas móviles de 252 días.
 5. **VECM** con el vector de Johansen.
 6. **Señales.** Filtro 1 para los pesos (α_t, β_t) y filtro 2 para el nivel del spread, con ganancia 1/83 para que tenga la misma memoria que la ventana del modelo estático. El z-score solo usa información hasta t-1.

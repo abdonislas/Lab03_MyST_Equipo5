@@ -1,5 +1,7 @@
 # Pairs trading AMT y SBAC con Kalman: formulación de Powell
 
+> Documento de trabajo. La versión oficial y completa de las formulaciones de Powell está en `docs/reporte.pdf` (secciones 3 a 6), generada desde `artifacts/`.
+
 Este documento describe la estrategia del integrante B (filtros de Kalman y política de trading) con el marco de decisiones secuenciales de Powell. Todos los valores numéricos vienen de `artifacts/kalman_params.json`, `artifacts/theta_optimo.json`, `artifacts/kalman_calibracion_momentos.csv` y `artifacts/metricas_preliminares.csv`.
 
 Notación general. $y_t = \log(\text{AMT}_t)$ es la observación y $x_t = \log(\text{SBAC}_t)$ el regresor. Usamos el regresor centrado
@@ -55,7 +57,7 @@ Más abajo explicamos por qué, al final, $R$ no se tomó del máximo de $\ell$ 
 3. Decisiones: ninguna en línea; fuera de línea se eligen $\delta$, $R$ y la inicialización.
 4. Incertidumbre: el ruido de observación $v_t$, los cambios de los pesos $w_t$ y los precios futuros.
 5. Modelo: las ecuaciones de arriba, con $\hat z_0 = (4.2814,\ 0.3952)$ del OLS del burn-in y $P_0 = I$.
-6. Ajuste: rejilla de $\delta \in \{10^{-7}, \ldots, 10^{-3}\}$ y $R$, restricción $\delta \le 10^{-5}$, $R$ por momentos y $\delta^* = 10^{-6}$ elegido por Sharpe en el grid search.
+6. Ajuste: rejilla de $\delta \in \{10^{-7}, \ldots, 10^{-3}\}$ y $R$, restricción $\delta \le 10^{-5}$, $R$ por momentos y $\delta^* = 10^{-6}$ elegido por Sharpe en la optimización de $\theta$.
 
 Valores finales: $\delta = 10^{-6}$, $Q = 1.000001 \times 10^{-6}\, I_2$, $R = 4.847 \times 10^{-4}$ (frente a $R_{\text{OLS}} = 1.307 \times 10^{-3}$).
 
@@ -165,14 +167,14 @@ Es la misma clase de política que la regla min-max de inventarios. En inventari
 
 ### Paso 6: ajustar la política
 
-Se hizo un grid search en train (después del burn-in) con $z_{\text{in}} \in \{1.5, 2.0, 2.5\}$, $z_{\text{out}} \in \{0, 0.25, 0.5\}$, $z_{\text{stop}} \in \{3.0, 3.5, 4.0\}$ y $h_{\max} \in \{41, 83, 124\}$, que son 81 combinaciones. Para Kalman se probaron además $\delta \in \{10^{-6}, 10^{-5}\}$ (162 configuraciones, 61 con al menos 10 operaciones) y para el estático la ventana $L \in \{41, 83, 124\}$ (243 configuraciones, 236 factibles). Se exigió un mínimo de 10 operaciones para no premiar resultados de dos o tres apuestas afortunadas.
+La primera versión usó un grid search de 81 combinaciones. Después de la revisión del avance se cambió a **optimización bayesiana** con Optuna (muestreador TPE, semilla 42), 150 evaluaciones por método, solo en train después del burn-in, con rangos continuos equivalentes a la rejilla: $z_{\text{in}} \in [1.5, 2.5]$, $z_{\text{out}} \in [0, 0.5]$, $z_{\text{stop}} \in [3.0, 4.0]$ y $h_{\max} \in [41, 124]$ días. Para Kalman se busca además $\delta \in \{10^{-6}, 10^{-5}\}$ y para el estático la ventana $L \in [41, 124]$. El objetivo es el Sharpe neto con al menos 10 operaciones, para no premiar resultados de dos o tres apuestas afortunadas.
 
-Resultado congelado:
+Resultado congelado (`artifacts/theta_optimo.json`):
 
 | método | $z_{\text{in}}$ | $z_{\text{out}}$ | $z_{\text{stop}}$ | $h_{\max}$ | otros | Sharpe train | operaciones |
 |---|---|---|---|---|---|---|---|
-| Kalman | 2.0 | 0.5 | 4.0 | 41 | $\delta^* = 10^{-6}$ | 0.483 | 11 |
-| Estático | 2.0 | 0.25 | 3.0 | 41 | $L^* = 83$ | 0.570 | 30 |
+| Kalman | 1.99 | 0.46 | 3.13 | 55 | $\delta^* = 10^{-6}$ | 0.560 | 12 |
+| Estático | 1.99 | 0.18 | 3.67 | 96 | $L^* = 92$ | 0.736 | 22 |
 
 Desde aquí $\theta^*$ ya no se toca: test y val solo se usan para medir.
 
@@ -253,7 +255,7 @@ Con un dato del otro lado de la media ($x = -1$) la covarianza entre $\alpha$ y 
 
 **R por método de momentos.** Las innovaciones tienen colas pesadas: curtosis en exceso de 1.22 con $\delta = 10^{-6}$ y de 4.45 con $\delta = 10^{-5}$. Con colas pesadas, la log-verosimilitud gaussiana prefiere una $R$ pequeña que ajuste bien los días normales y tolera los pocos errores grandes. El filtro termina reportando menos incertidumbre de la real. Por eso escogemos $R$ tal que $\operatorname{var}(e_t/\sqrt{S_t}) = 1$ en train, buscándola por bisección. La tabla de máxima verosimilitud se conserva como evidencia en `kalman_calibracion.csv`. Fuera de muestra, la varianza quedó en 1.13 en test y 1.62 en val.
 
-**$\delta$ acotado a $10^{-5}$.** Con $\delta \ge 10^{-4}$ la máxima verosimilitud empujaba a una solución degenerada: $R$ al mínimo de la rejilla y $\beta$ moviéndose entre 0.39 y 0.93 en val. El hedge ratio entre dos empresas del mismo negocio es un parámetro estructural que debe cambiar en meses, no en días. Con $\delta$ grande la verosimilitud explica la reversión del spread como movimientos de $\alpha$ y $\beta$, que es justo lo que queremos tradear. Entre $10^{-6}$ y $10^{-5}$ decidió el grid search, y ganó $10^{-6}$.
+**$\delta$ acotado a $10^{-5}$.** Con $\delta \ge 10^{-4}$ la máxima verosimilitud empujaba a una solución degenerada: $R$ al mínimo de la rejilla y $\beta$ moviéndose entre 0.39 y 0.93 en val. El hedge ratio entre dos empresas del mismo negocio es un parámetro estructural que debe cambiar en meses, no en días. Con $\delta$ grande la verosimilitud explica la reversión del spread como movimientos de $\alpha$ y $\beta$, que es justo lo que queremos tradear. Entre $10^{-6}$ y $10^{-5}$ decidió la optimización de $\theta$, y ganó $10^{-6}$.
 
 **$Q2$ proporcional a $R2$ con $K = 1/L$.** En el modelo de nivel local, si $Q2 = q\, R2$ la ganancia converge a un valor fijo, y con $q = K^2/(1-K)$ ese valor es exactamente $K$. Con ganancia fija, $\hat\mu$ es un promedio exponencial con memoria de aproximadamente $1/K$ días. Al usar $K = 1/83$ el filtro 2 recuerda lo mismo que la ventana de 83 días del modelo estático, y la comparación entre los dos es justa. El $\lambda$ del EWMA de $R2$ se fijó en $1 - 1/L$ por la misma razón. La primera versión usaba un $Q2$ fijo y grande; con eso $\hat\mu$ perseguía al spread y las operaciones duraban unos 5 días, contra una vida media de 41.
 

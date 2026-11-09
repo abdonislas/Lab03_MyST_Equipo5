@@ -56,14 +56,26 @@ def engle_granger_pares(logpx, corr_pares):
     return pd.DataFrame(filas)
 
 
+def rango_secuencial(estadisticos, criticos):
+    """Rango de Johansen probado en escalera: se empieza en r0 = 0 y se sube mientras el
+    estadistico supere a su valor critico; el rango es el primer r0 que NO se rechaza.
+    (Contar todos los rechazos no es lo mismo: un rechazo despues de un no-rechazo no cuenta.)"""
+    r = 0
+    for est, crit in zip(estadisticos, criticos):
+        if est <= crit:
+            break
+        r += 1
+    return r
+
+
 def evaluar_grupo(logpx, cols, corr_pares, no_i1):
     """Calcula todas las metricas del grupo y la primera etapa del embudo donde cae."""
     data = logpx[list(cols)].dropna()
     n = len(cols)
 
     jo = coint_johansen(data, det_order=0, k_ar_diff=1)
-    rank_tr = int((jo.lr1 > jo.cvt[:, 1]).sum())   # relaciones al 95% (traza)
-    rank_me = int((jo.lr2 > jo.cvm[:, 1]).sum())   # idem con max-eigenvalue
+    rank_tr = rango_secuencial(jo.lr1, jo.cvt[:, 1])   # relaciones al 95% (traza)
+    rank_me = rango_secuencial(jo.lr2, jo.cvm[:, 1])   # idem con max-eigenvalue
     activo_no_i1 = [c for c in cols if c in no_i1]
     bandera = rank_tr == n or rank_me == n or len(activo_no_i1) > 0
 
@@ -83,6 +95,11 @@ def evaluar_grupo(logpx, cols, corr_pares, no_i1):
 
     return {"grupo": "+".join(cols), "n": n,
             "corr_min_par": round(min(corr_pares[p] for p in itertools.combinations(cols, 2)), 4),
+            # estadisticos de Johansen para r = 0 y r <= 1, con su valor critico al 95%
+            "traza_r0": round(jo.lr1[0], 2), "cv_traza_r0": round(jo.cvt[0, 1], 2),
+            "traza_r1": round(jo.lr1[1], 2), "cv_traza_r1": round(jo.cvt[1, 1], 2),
+            "maxeig_r0": round(jo.lr2[0], 2), "cv_maxeig_r0": round(jo.cvm[0, 1], 2),
+            "maxeig_r1": round(jo.lr2[1], 2), "cv_maxeig_r1": round(jo.cvm[1, 1], 2),
             "rank_traza": rank_tr, "rank_maxeig": rank_me, "bandera_roja": bandera,
             "activo_no_I1": activo_no_i1,
             "ADF_spread_p": round(adf_p, 4), "vida_media": round(hl, 1),

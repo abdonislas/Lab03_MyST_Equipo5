@@ -24,7 +24,7 @@ Incluye:
 - Política de umbrales (PFA) con θ = (z_in, z_out, z_stop, h_max) elegido en train y congelado.
 - Backtest multi-pata con comisión de 0.125% por pata, préstamo de 0.25% anual sobre los cortos, 80% de exposición y cinco políticas de rebalanceo.
 - Métricas (Sharpe, Sortino, Calmar, max drawdown, win rate, profit factor), dashboard de Streamlit y reporte PDF.
-- Pruebas automáticas de causalidad, contabilidad y calibración de los filtros.
+- Pruebas automáticas de causalidad, normalización de pesos, contabilidad y calibración de los filtros.
 
 No incluye: más de un grupo, ejecución intradía, impacto de mercado, costo de préstamo variable ni operación en vivo.
 
@@ -74,11 +74,14 @@ Las decisiones de modelado (grupo, costos, criterios del embudo, interpretación
 
 ## Riesgos
 
-| riesgo | efecto | mitigación |
-|---|---|---|
-| La relación entre AMT y SBAC no es estable | pérdidas fuera de muestra | pruebas de estabilidad (oos_check, re-split, Johansen móvil) y reporte honesto |
-| Sobreajuste de θ y de los parámetros de los filtros | métricas de train que no se repiten | θ congelado antes de ver test; pendiente: objetivos más robustos |
-| Pruebas múltiples (114 grupos y cambio de universo) | grupo elegido por azar | conteo de falsos positivos y razón económica previa |
-| Yahoo reajusta precios históricos | resultados que cambian solos | snapshot de precios en `artifacts/` |
-| Resultados distintos entre computadoras | artifacts que no se pueden reproducir exactos | versiones fijas en `requirements.txt`, semilla 42 y artifacts oficiales de una sola corrida |
-| Pocas operaciones fuera de muestra | métricas con poca precisión | reportar el número de operaciones junto a cada métrica |
+| riesgo | probabilidad | impacto | efecto | mitigación |
+|---|---|---|---|---|
+| La relación entre AMT y SBAC no es estable fuera de muestra | alta | alto | pérdidas fuera de muestra | pruebas de estabilidad (oos_check, re-split del train, Johansen móvil) y reporte honesto |
+| Sobreajuste de θ y de los parámetros de los filtros | alta | alto | métricas de train que no se repiten | θ elegido solo en train y congelado antes de ver test; mínimo de 10 operaciones |
+| Pruebas múltiples (114 grupos y cambio de universo) | media | alto | grupo elegido por azar | conteo de falsos positivos esperados y razón económica previa |
+| Divergencia o mala calibración de los filtros de Kalman | media | alto | pesos o z-score sin sentido | burn-in, x centrado, R por momentos, δ acotado y pruebas de calibración |
+| Yahoo reajusta precios históricos | media | medio | resultados que cambian solos | snapshot de precios en `artifacts/` |
+| Resultados distintos entre computadoras | media | medio | artifacts que no se pueden reproducir exactos | versiones fijas, semilla 42 y θ* congelado por defecto en `main.py` |
+| Pocas operaciones fuera de muestra | alta | medio | métricas con poca precisión | reportar el número de operaciones junto a cada métrica |
+
+Probabilidad e impacto en tres niveles: baja, media y alta.
